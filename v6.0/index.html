@@ -180,7 +180,7 @@ document.getElementById('snapshot').onclick=()=>{
  const deadline=closeMillis(c.close);
  if(!Number.isFinite(deadline)||Date.now()>=deadline||c.completed){msg.textContent='締切時刻を確認できないか、すでに締切後のため保存できません。';return;}
  compute();if(document.getElementById('err').textContent){msg.textContent='入力を確認してください。';return;}
- const record={key:c.key,name:c.name,date:c.date,created:new Date().toISOString(),deadline:c.close,ranked:results.map(r=>({key:r.key,p:r.p,conditional:r.conditional})),eventProbability,allRanked:allResults.map(r=>({key:r.key,p:r.p})),recommended:featured().map(r=>r.key),exhibition:values.filter(a=>a.ex!==null&&a.ex!==''&&Number(a.ex)>0).length};
+ const record={key:c.key,name:c.name,date:c.date,created:new Date().toISOString(),deadline:c.close,ranked:results.map(r=>({key:r.key,p:r.p,conditional:r.conditional})),eventProbability,allRanked:allResults.map(r=>({key:r.key,p:r.p})),recommended:featured().filter(r=>r.p>=.01).map(r=>r.key),exhibition:values.filter(a=>a.ex!==null&&a.ex!==''&&Number(a.ex)>0).length};
  try{const all=JSON.parse(localStorage.getItem('boat-snapshots-v70')||'{}');all[c.key]=record;localStorage.setItem('boat-snapshots-v70',JSON.stringify(all));msg.textContent=`${c.name} の締切前予測を保存しました（展示タイム ${record.exhibition}/6艇）。同じレースで再保存すると前の予測を置き換えます。`;}
  catch(e){msg.textContent='ブラウザ内に予測を保存できませんでした。';}
 };
