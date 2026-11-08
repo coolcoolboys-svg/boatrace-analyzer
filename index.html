@@ -5,39 +5,40 @@
 :root{font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;color:#17243a;background:#f2f5fa}
 *{box-sizing:border-box}body{margin:0}.wrap{max-width:1100px;margin:auto;padding:18px}header{display:flex;justify-content:space-between;align-items:center;gap:12px}h1{font-size:24px;margin:8px 0}h2{font-size:18px;margin:0 0 12px}.muted{color:#637189;font-size:13px}.panel{background:white;border-radius:16px;padding:18px;margin:15px 0;box-shadow:0 2px 12px #15243a0b}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.boat{border:1px solid #dbe1eb;border-radius:12px;padding:12px}.boat h3{margin:0 0 10px;display:flex;align-items:center;gap:9px}.num{width:34px;height:34px;border:1px solid #aaa;display:inline-flex;align-items:center;justify-content:center;border-radius:7px;font-weight:800}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}label{font-size:12px;color:#536179;display:block}select{font-size:16px;background:white;color:#17243a}input{width:100%;border:1px solid #cdd6e4;border-radius:8px;padding:9px;font-size:16px;margin-top:4px;background:white;color:#17243a}input:focus{outline:2px solid #4285ed}button{border:0;border-radius:10px;padding:11px 15px;font-weight:700;cursor:pointer;background:#215bd6;color:white}button.secondary{background:#eaf0fa;color:#24446e}.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:14px;white-space:nowrap}th,td{text-align:right;padding:9px;border-bottom:1px solid #e9edf4}th:first-child,td:first-child{text-align:left}th{background:#f6f8fc}.bars{display:grid;grid-template-columns:repeat(6,1fr);gap:7px}.baritem{text-align:center;font-size:12px}.track{height:110px;display:flex;align-items:end;justify-content:center;background:#f5f7fb;border-radius:7px;overflow:hidden}.fill{width:70%;min-height:2px;background:#356cdb}.small{font-size:12px}.notice{background:#fff8e8;border:1px solid #f4dfa6;border-radius:10px;padding:12px;font-size:13px;line-height:1.7}.stat{font-weight:800;font-size:23px}.bad{color:#b02c2c;font-size:13px}.tabs{display:flex;gap:8px;flex-wrap:wrap}.tabs button{background:#edf2fa;color:#28456b}.tabs button.active{background:#215bd6;color:white}@media(max-width:720px){.grid{grid-template-columns:1fr 1fr}.wrap{padding:10px}.panel{padding:12px}.fields{grid-template-columns:1fr 1fr}}@media(max-width:460px){.grid{grid-template-columns:1fr}.fields{grid-template-columns:repeat(2,1fr)}}
 .settings:not([open]) > :not(summary){display:none}.settings > summary{cursor:pointer;list-style:none;font-size:24px}.settings > summary::-webkit-details-marker{display:none}.racecards{display:grid;grid-template-columns:repeat(auto-fit,minmax(225px,1fr));gap:9px}.racecard{border:1px solid #dce4ef;border-radius:11px;padding:11px;background:#f8faff}.racecard strong{display:block;margin-bottom:5px}.venue-summary-content{display:inline-flex;align-items:center;justify-content:space-between;gap:8px;width:calc(100% - 1.3em);vertical-align:middle}.venue-countdown{font-size:.85em;font-weight:600;color:#2456bd;white-space:nowrap}.racecard button{margin-top:8px;width:100%}.racecard .muted{line-height:1.6}.racecard button:disabled{background:#d4dae5;color:#647084;cursor:not-allowed}#probabilitytabs{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;margin-bottom:8px}#probabilitytabs button{min-width:0;white-space:nowrap;padding:9px 2px;font-size:clamp(9px,2.5vw,13px);border-radius:7px 7px 0 0;border:1px solid #cbd2dc;opacity:.65}#probabilitytabs button.active{opacity:1;outline:2px solid #203c76;outline-offset:-2px}#probabilitytabs .tab-short{display:none}@media(max-width:650px){#probabilitytabs .tab-long{display:none}#probabilitytabs .tab-short{display:inline}}
-/* Interface */
-:root{color:#172b45;background:#eff4f7}
-body{background:linear-gradient(160deg,#eaf3f5 0%,#f5f7fa 46%,#eaf0f5 100%);min-height:100vh}
-.wrap{max-width:1080px;padding:22px 20px 48px}
-header{padding:7px 4px 14px;border-bottom:1px solid #d6e2e8;margin-bottom:20px}
-h1{font-size:clamp(20px,4vw,27px);letter-spacing:.025em;color:#17344b}
-h2{font-size:18px;letter-spacing:.015em;color:#18354a;margin-bottom:16px}
-.panel{background:#fff;border:1px solid #e3edf0;border-radius:20px;padding:22px;margin:16px 0;box-shadow:0 8px 28px rgba(31,64,84,.055)}
-.settings>summary{background:#fff;border:1px solid #dce8ec;border-radius:14px;padding:8px;line-height:1;box-shadow:0 3px 12px #173a5010}
-button{background:#176c80;border-radius:11px;padding:11px 15px;box-shadow:0 3px 8px #176c8020}
-button.secondary{background:#eaf3f5;color:#22576b;box-shadow:none}
-button:focus-visible,summary:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #50a9bf;outline-offset:2px}
-.controls{gap:10px}
-label{color:#5c7181;font-weight:600}
-input,select,textarea{border-color:#d4e2e7;color:#1a3347}
-.muted{color:#718394}
-.racecards{gap:8px}
-.racecard{border:1px solid #e0ecee;background:#f8fbfb;border-radius:13px;padding:14px}
-.racecard summary{cursor:pointer;color:#1d394e}
-.racecard[open]{background:#f4faf9;border-color:#b9dcd9}
-.venue-countdown{color:#177c80;font-variant-numeric:tabular-nums}
-.boat{border-color:#e0eaee;border-radius:15px;padding:15px;background:#fcfefe}
-.scroll{border-radius:10px}
+/* Race dashboard */
+:root{color:#182535;background:#eef1f4}
+body{background:#eef1f4;min-height:100vh}
+.wrap{max-width:1080px;padding:0 16px 36px}
+header{background:#102b48;color:#fff;padding:18px 20px;border-bottom:4px solid #e6ad30;margin:0 -16px 16px;align-items:flex-start}
+h1{font-size:clamp(19px,4.7vw,26px);letter-spacing:.015em;color:#fff;margin:4px 0}
+h2{font-size:18px;letter-spacing:.01em;color:#142d49;margin:0 0 16px;padding-left:11px;border-left:4px solid #e6ad30}
+.panel{background:#fff;border:1px solid #d8dfe6;border-radius:5px;padding:20px;margin:12px 0;box-shadow:none}
+.settings>summary{border:1px solid #718398;border-radius:5px;padding:7px;line-height:1;background:#fff;font-size:21px}
+.settings .panel{color:#182535}
+button{background:#163d66;border-radius:4px;padding:11px 15px;box-shadow:none}
+button.secondary{background:#e8edf2;color:#203b58;box-shadow:none}
+button:focus-visible,summary:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #3182bc;outline-offset:2px}
+.controls{gap:8px}
+label{color:#526273;font-weight:600}
+input,select,textarea{border-color:#c8d2dc;color:#182535;border-radius:4px}
+.muted{color:#657487}
+.racecards{gap:6px}
+.racecard{border:1px solid #d9e1e9;border-left:3px solid #1b507b;background:#f7f9fb;border-radius:3px;padding:13px}
+.racecard summary{cursor:pointer;color:#172f49}
+.racecard[open]{background:#f2f6f9;border-left-color:#e6ad30}
+.venue-countdown{color:#a3461b;font-weight:700;font-variant-numeric:tabular-nums}
+.boat{border-color:#d9e1e9;border-radius:4px;padding:14px;background:#fff}
+.scroll{border-radius:0}
 table{font-variant-numeric:tabular-nums}
-th,td{border-color:#eaf0f3;padding:11px 10px}
-th{background:#f1f6f8;color:#526b7c}
-#probabilitytabs{gap:4px}
+th,td{border-color:#e0e6ec;padding:11px 10px}
+th{background:#eaf0f5;color:#354e65}
+#probabilitytabs{gap:3px}
 #probabilitytabs button{box-shadow:none}
-#probabilitytabs button.active{outline:2px solid #183f54}
+#probabilitytabs button.active{outline:2px solid #142d49}
 details>summary{cursor:pointer}
 [hidden]{display:none!important}
-@media(max-width:720px){.wrap{padding:14px 12px 36px}header{margin-bottom:14px} .panel{padding:17px;margin:12px 0;border-radius:17px}.racecard{padding:13px}}
-@media(max-width:380px){.venue-summary-content{gap:4px}.venue-countdown{font-size:.72em}.racecard{padding:11px}.panel{padding:14px}}
+@media(max-width:720px){.wrap{padding:0 10px 28px}header{margin:0 -10px 12px;padding:16px 14px}.panel{padding:16px 14px;margin:10px 0;border-radius:4px}.racecard{padding:12px}}
+@media(max-width:380px){.venue-summary-content{gap:4px}.venue-countdown{font-size:.72em}.racecard{padding:10px}.panel{padding:14px 12px}}
 </style></head><body><div class="wrap">
 <header><div><h1>ボートレースアナライザー</h1></div><details class="settings"><summary aria-label="設定">⚙️</summary><button class="secondary" id="reset">初期値に戻す</button><div id="settingscontent"><details class="panel"><summary>取扱説明書</summary><p>指標の調整は1.0倍が自動予測の基準、2.0倍はその補正を2倍、0倍は補正を使いません。数値を変えて「調整して再計算」を押すと、調整前後の予測確率を比較できます。オッズは投票状況により決まり、アプリの予測調整では変わりません。保存・読込はこの端末内のカスタム設定を使用します。</p><p>予測結果は確率ごとの項目をタップして確認できます。オッズや期待回収率は取得できた場合に表示します。予測や回収率は保証されません。</p><p>レース一覧の締切は提供元の予定時刻です。中止・順延・結果確定のレースは対象外です。最終的な締切は公式サイトで確認してください。</p><p>出走表の取得にはネット接続が必要です。提供元は <a href="https://github.com/boatraceopenapi/api" target="_blank" rel="noopener noreferrer">Boatrace OpenAPI</a>（非公式）です。個人コース別成績は未取得の場合に手入力できます。</p><p>確率はモデルの予測値です。号艇とコースが同じと仮定し、進入変更は反映していません。確率別の項目を開くと全120通りを確認できます。</p><p>期待回収率の候補は、オッズ10.0倍以上・予測確率1%以上・予測確率×オッズ150%以上を満たす最大10通りです。オッズ未取得では判定できません。表示オッズは取得時点のもので、確定まで変動します。</p></details><div class="notice"><strong>予測モデルの説明</strong>　号艇を同じ番号のコースと仮定。等級、全国・当地成績、モーター・ボート成績、フライング歴、平均ST、展示、体重、風・波などを使用。過去データの一部で係数を学習し、別期間で検証しました。展示前後のデータを区別し、締切前の予測を保存できます。提供元の過去データは後から訂正される場合があり、レース直前の保存データによる厳密な検証ではありません。個人コース別の手入力は未検証です。締切前オッズを使った別期間検証でも利益は確認できていません。的中や利益を保証しません。</div></div></details></header>
 
