@@ -257,11 +257,11 @@ function renderDaily(){
  const now=Date.now(),today=jstDay();
  const enriched=dailyCards.map(x=>({...x,closed:closeMillis(x.r.closed_at),cancelled:['中止','順延','途中中止'].some(t=>String(x.r.day_number_source||'').includes(t)),completed:resultExists(x.r)}));
  const eligible=enriched.filter(x=>hasSix(x.r)&&!x.cancelled&&!x.completed&&Number.isFinite(x.closed)&&x.closed>now&&dailyDate===today);
- const el=document.getElementById('racecards'),opened=new Set(Array.from(el.querySelectorAll('details[open]')).map(x=>x.dataset.venue));
+ const el=document.getElementById('racecards'),opened=new Set(Array.from(el.querySelectorAll('details[open]')).map(x=>x.dataset.venue)),inactiveOpen=!!el.querySelector('details[data-inactive][open]'),inactive=[];
  el.innerHTML=venues.map((name,index)=>{const venue=index+1,upcoming=eligible.filter(x=>x.venue===venue).sort((a,b)=>a.closed-b.closed);
- if(!upcoming.length)return `<div class="racecard" aria-disabled="true" style="background:#ebedf0;color:#89919d"><strong>${escapeHTML(name)}</strong><span class="muted">予測できるレースなし</span></div>`;
+ if(!upcoming.length){inactive.push(name);return '';}
  return `<details class="racecard" data-venue="${venue}" ${opened.has(String(venue))?'open':''}><summary><strong style="display:inline">${escapeHTML(name)}</strong>　${upcoming.length}レース</summary>${upcoming.map(x=>{const clock=new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',hour:'2-digit',minute:'2-digit'}).format(new Date(x.closed));return `<div style="padding:8px 0;border-top:1px solid #dce4ef"><strong>${x.no}R　締切 ${clock}</strong><span class="muted">${escapeHTML(x.r.subtitle||x.r.title||'')}</span><button data-venue="${venue}" data-no="${x.no}">このレースを予測</button></div>`}).join('')}</details>`;
- }).join('');
+ }).join('')+(inactive.length?`<details class="racecard" data-inactive ${inactiveOpen?'open':''}><summary>予測できるレースがない会場（${inactive.length}場）</summary><div class="muted" style="padding:8px 0">${inactive.map(escapeHTML).join('、')}</div></details>`:'');
  document.getElementById('liststatus').textContent=`${dailyDate||'本日'}：予測可能 ${eligible.length}レース ／ ${new Set(eligible.map(x=>x.venue)).size}場`;
 }
 async function fetchDaily(){const status=document.getElementById('liststatus');const button=document.getElementById('listtoday');button.disabled=true;status.textContent='全国の開催レースを取得しています…';
