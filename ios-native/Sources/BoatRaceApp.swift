@@ -82,6 +82,7 @@ struct RaceListView: View {
                 }
             }
             .navigationTitle("BOAT RACE")
+            .toolbar { NavigationLink("履歴") { HistoryView() } }
             .refreshable { await store.refresh() }
             .task {
                 while !Task.isCancelled {
