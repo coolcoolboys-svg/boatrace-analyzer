@@ -1,0 +1,36 @@
+workflows:
+  ios-testflight:
+    name: Boat Race Analyzer TestFlight
+    instance_type: mac_mini_m2
+    max_build_duration: 45
+    integrations:
+      app_store_connect: noreru-appstore
+    environment:
+      xcode: latest
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: jp.boatraceanalyzer.nativepreview
+    scripts:
+      - name: Load iOS source
+        script: |
+          set -euo pipefail
+          git fetch origin feature/ios-native-test
+          git checkout --detach FETCH_HEAD
+      - name: Generate project
+        script: |
+          set -euo pipefail
+          command -v xcodegen >/dev/null || brew install xcodegen
+          cd ios-native
+          xcodegen generate
+      - name: Configure signing
+        script: xcode-project use-profiles
+      - name: Build signed package
+        script: xcode-project build-ipa --project "$CM_BUILD_DIR/ios-native/BoatRaceAnalyzer.xcodeproj" --scheme BoatRaceAnalyzer
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: false
+        submit_to_app_store: false
