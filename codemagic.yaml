@@ -40,10 +40,24 @@ workflows:
           cd ios-native
           swift make_icon.swift
           xcodegen generate
+      - name: Simulator preview
+        script: |
+          set -euo pipefail
+          cd ios-native
+          xcodebuild -project BoatRaceAnalyzer.xcodeproj -scheme BoatRaceAnalyzer -configuration Debug -sdk iphonesimulator -derivedDataPath simbuild CODE_SIGNING_ALLOWED=NO build > /tmp/simulator-build.log
+          DEVICE=$(xcrun simctl list devices available -j | python3 -c 'import sys,json; d=json.load(sys.stdin); print(next(x["udid"] for a in d["devices"].values() for x in a if x["name"].startswith("iPhone")))') 
+          xcrun simctl boot "$DEVICE" || true
+          xcrun simctl bootstatus "$DEVICE" -b
+          xcrun simctl install "$DEVICE" simbuild/Build/Products/Debug-iphonesimulator/BoatRaceAnalyzer.app
+          xcrun simctl launch "$DEVICE" jp.boatraceanalyzer.nativepreview
+          sleep 20
+          xcrun simctl io "$DEVICE" screenshot "$CM_BUILD_DIR/simulator-home.png"
       - name: Configure signing
         script: xcode-project use-profiles
       - name: Build signed package
         script: xcode-project build-ipa --project "$CM_BUILD_DIR/ios-native/BoatRaceAnalyzer.xcodeproj" --scheme BoatRaceAnalyzer
     artifacts:
+      - simulator-home.png
+      - /tmp/simulator-build.log
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
