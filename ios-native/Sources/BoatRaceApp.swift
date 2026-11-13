@@ -7,6 +7,15 @@ struct BoatRaceApp: App {
     }
 }
 
+func parseRaceDate(_ input: String) -> Date? {
+    var value = input.trimmingCharacters(in: .whitespacesAndNewlines).replacingOccurrences(of: " ", with: "T")
+    if value.range(of: #"(?:Z|[+-]\d\d:\d\d)$"#, options: .regularExpression) == nil { value += "+09:00" }
+    let iso = ISO8601DateFormatter()
+    if let date = iso.date(from: value) { return date }
+    iso.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+    return iso.date(from: value)
+}
+
 struct Race: Identifiable {
     let id: String
     let number: String
@@ -43,7 +52,7 @@ final class RaceStore: ObservableObject {
                 status = "レース情報を取得できませんでした"
                 return
             }
-            let iso = ISO8601DateFormatter()
+            let readableDay = "\(day.prefix(4))-\(day.dropFirst(4).prefix(2))-\(day.suffix(2))"
             venues = stadiums.compactMap { key, value in
                 guard let n = Int(key), (1...24).contains(n),
                       let stadium = value as? [String: Any],
@@ -51,12 +60,16 @@ final class RaceStore: ObservableObject {
                 let items: [Race] = races.compactMap { rk, rv in
                     guard let race = rv as? [String: Any],
                           let close = race["closed_at"] as? String,
-                          let date = iso.date(from: close), date > Date(),
-                          let racers = race["racers"] as? [String: Any], racers.count == 6 else { return nil }
+                          let date = parseRaceDate(close), date > Date(),
+                          let racers = race["racers"] as? [String: Any],
+                          (1...6).allSatisfy({ (racers[String($0)] as? [String: Any])?["name"] as? String != nil }),
+                          !["中止", "順延", "途中中止"].contains(where: { String(describing: race["day_number_source"] ?? "").contains($0) }),
+                          !((race["result"] as? [String: Any])?["racers"] as? [String: [String: Any]] ?? [:]).values.contains(where: { (($0["place_number"] as? Int) ?? 0) > 0 }) else { return nil }
                     let clock = DateFormatter()
                     clock.timeZone = TimeZone(identifier: "Asia/Tokyo")
                     clock.dateFormat = "HH:mm"
-                    return Race(id: "\(n)-\(rk)", number: rk, closing: clock.string(from: date), raw: race)
+                    var withDate = race; withDate["date"] = readableDay
+                    return Race(id: "\(n)-\(rk)", number: rk, closing: clock.string(from: date), raw: withDate)
                 }.sorted { (Int($0.number) ?? 0) < (Int($1.number) ?? 0) }
                 return items.isEmpty ? nil : Venue(id: key, name: names[n-1], races: items)
             }.sorted { (Int($0.id) ?? 0) < (Int($1.id) ?? 0) }
@@ -69,27 +82,46 @@ final class RaceStore: ObservableObject {
 
 struct RaceListView: View {
     @StateObject private var store = RaceStore()
+    private let aqua = Color(red: 0.09, green: 0.54, blue: 0.65)
     var body: some View {
         NavigationStack {
-            List {
-                if !store.status.isEmpty { Text(store.status).foregroundStyle(.secondary) }
-                ForEach(store.venues) { venue in
-                    DisclosureGroup("\(venue.name)  \(venue.races.count)レース") {
-                        ForEach(venue.races) { race in
-                            NavigationLink { PredictionView(race: race, venue: venue.name, venueID: venue.id) } label: { HStack { Text("\(race.number)R"); Spacer(); Text("締切 \(race.closing)").foregroundStyle(.secondary) } }
+            ScrollView {
+                VStack(spacing: 16) {
+                    HStack(spacing: 12) {
+                        Image(systemName: "sailboat.fill").font(.system(size: 36)).foregroundStyle(.white, .yellow)
+                        Text("BOAT RACE\nANALYZER").font(.system(size: 23, weight: .black, design: .rounded)).foregroundStyle(.white)
+                        Spacer()
+                        NavigationLink { HistoryView() } label: {
+                            Image(systemName: "calendar").font(.title3.bold()).padding(12).background(.white.opacity(0.94), in: RoundedRectangle(cornerRadius: 14)).foregroundStyle(aqua)
+                        }.accessibilityLabel("予測履歴")
+                    }.padding(20).background(LinearGradient(colors: [.blue, aqua], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 24))
+                    VStack(alignment: .leading, spacing: 14) {
+                        Label("本日の予測可能レース一覧", systemImage: "circle.fill").font(.headline).foregroundStyle(aqua)
+                        HStack { Button("一覧を更新") { Task { await store.refresh() } }.buttonStyle(.borderedProminent).tint(aqua); Spacer() }
+                        if !store.status.isEmpty { Text(store.status).foregroundStyle(.secondary) }
+                        ForEach(store.venues) { venue in
+                            DisclosureGroup {
+                                ForEach(venue.races) { race in
+                                    NavigationLink { PredictionView(race: race, venue: venue.name, venueID: venue.id) } label: {
+                                        HStack { Text("\(race.number)R").fontWeight(.bold); Spacer(); Text("締切 \(race.closing)").foregroundStyle(.secondary); Image(systemName: "chevron.right") }.padding(.vertical, 8)
+                                    }.foregroundStyle(Color(red: 0.12, green: 0.29, blue: 0.39))
+                                }
+                            } label: {
+                                HStack { Text(venue.name).fontWeight(.bold); Text("\(venue.races.count)レース"); Spacer(); Text(venue.races.first.map { "\($0.number)R \($0.closing)" } ?? "").font(.caption).foregroundStyle(.secondary) }
+                            }.padding(15).background(Color(red: 0.91, green: 0.97, blue: 0.98), in: RoundedRectangle(cornerRadius: 17))
                         }
-                    }
-                }
+                    }.padding(20).background(.white, in: RoundedRectangle(cornerRadius: 22))
+                }.padding(14)
             }
-            .navigationTitle("BOAT RACE")
-            .toolbar { NavigationLink("履歴") { HistoryView() } }
+            .background(Color(red: 0.945, green: 0.976, blue: 0.988))
+            .toolbar(.hidden, for: .navigationBar)
             .refreshable { await store.refresh() }
             .task {
                 while !Task.isCancelled {
                     await store.refresh()
-                    try? await Task.sleep(nanoseconds: 30_000_000_000)
+                    do { try await Task.sleep(nanoseconds: 30_000_000_000) } catch { break }
                 }
             }
-        }
+        }.preferredColorScheme(.light)
     }
 }
