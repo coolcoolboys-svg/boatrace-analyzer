@@ -62,6 +62,34 @@ input,select,textarea{border-color:#cce1eb;border-radius:9px}
 .weight-slider output{color:#14728b}
 #probabilitytabs button{border-radius:10px 10px 0 0}
 @media(max-width:720px){.panel{border-radius:16px}.racecard{border-radius:12px}}
+
+/* Friendly race guide */
+:root{font-family:ui-rounded,"Hiragino Maru Gothic ProN","BIZ UDPGothic","Meiryo",sans-serif;color:#28435a}
+body{background:#f1f9fc}
+button,input,select,textarea{font-family:inherit}
+header{background:linear-gradient(120deg,#277fbd,#43bbc3);border-bottom:0;border-radius:0 0 28px 28px;box-shadow:0 6px 0 #d8eef3}
+header .brand h1{font-family:ui-rounded,"Arial Rounded MT Bold",system-ui,sans-serif;letter-spacing:.035em}
+.panel{border:0;border-radius:24px;box-shadow:0 5px 18px #285a7010;padding:21px}
+h2{display:flex;align-items:center;gap:9px;padding:0;border:0;font-weight:800;font-size:18px;letter-spacing:.015em;color:#244b68}
+h2::before{content:"";width:11px;height:11px;border-radius:50%;background:#ffbe4f;box-shadow:6px 3px 0 #76d5d1;flex:none;margin-right:5px}
+button{border-radius:999px;padding:12px 18px;background:#168eae;box-shadow:0 4px 0 #d0ebef;letter-spacing:.015em}
+button.secondary{background:#eaf5fa;color:#286078;box-shadow:none}
+.racecards{display:grid;gap:10px}
+.racecard{border:0;border-radius:19px;background:#eaf8fb;padding:15px 17px;box-shadow:0 3px 0 #d9eff3}
+.racecard[open]{background:#e4f8f5;border:0;box-shadow:0 3px 0 #cceae6}
+.racecard summary{list-style:none;cursor:pointer}
+.racecard summary::-webkit-details-marker{display:none}
+.racecard summary::before{content:"＋";display:inline-flex;justify-content:center;align-items:center;width:26px;height:26px;border-radius:50%;background:white;color:#17849e;font-weight:800;margin-right:7px;vertical-align:middle}
+.racecard[open] summary::before{content:"−"}
+.venue-summary-content{width:calc(100% - 38px)}
+.venue-countdown{background:#fff4df;color:#aa5436;border-radius:999px;padding:4px 8px;font-size:.75em}
+input,select,textarea{border-radius:12px}
+.boat{border-radius:17px;background:#fff}
+th{background:#edf7fa}
+.weight-slider input[type=range]{accent-color:#20a3b4}
+#probabilitytabs button{border-radius:12px 12px 0 0}
+@media(max-width:720px){.panel{border-radius:20px;padding:18px 15px}.racecard{border-radius:17px;padding:13px}.venue-countdown{padding:4px 6px}}
+@media(max-width:380px){.venue-countdown{font-size:.65em}.racecard summary::before{width:22px;height:22px;margin-right:4px}.venue-summary-content{width:calc(100% - 29px)}}
 </style></head><body><div class="wrap">
 <header><div class="brand"><svg class="brand-boat" viewBox="0 0 88 54" aria-hidden="true"><path d="M6 36c7 0 14-2 21-5l35-13 15 3-9 14c-7 7-14 10-25 10H20c-7 0-11-3-14-9Z" fill="#fff"/><path d="M16 38h50l-5 4H25c-4 0-7-1-9-4Z" fill="#e6ad30"/><path d="M41 29l8-15 8 1-2 10-14 4Z" fill="#e6ad30"/><circle cx="55" cy="11" r="5" fill="#fff"/><path d="M3 48h38M0 52h27M69 42h15" stroke="#78c5df" stroke-width="2.5" stroke-linecap="round"/></svg><h1>BOAT RACE<br><span>ANALYZER</span></h1></div><details class="settings"><summary aria-label="設定">⚙️</summary><button class="secondary" id="reset">初期値に戻す</button><div id="settingscontent"><details class="panel"><summary>取扱説明書</summary><p>指標の調整は0が現在の予測を基準とし、1刻みで補正の強さを0.1倍ずつ変更します。−10は補正を使わず、＋10は補正を2倍にします。スライダーを動かすと予測確率がすぐに更新されます。オッズは投票状況により決まり、アプリの予測調整では変わりません。保存・読込はこの端末内のカスタム設定を使用します。</p><p>予測結果は確率ごとの項目をタップして確認できます。オッズや期待回収率は取得できた場合に表示します。予測や回収率は保証されません。</p><p>レース一覧の締切は提供元の予定時刻です。中止・順延・結果確定のレースは対象外です。最終的な締切は公式サイトで確認してください。</p><p>出走表の取得にはネット接続が必要です。提供元は <a href="https://github.com/boatraceopenapi/api" target="_blank" rel="noopener noreferrer">Boatrace OpenAPI</a>（非公式）です。個人コース別成績は未取得の場合に手入力できます。</p><p>風速・波高は取得できた場合に艇ごとの基準補正として使用します。選手別の波高適性は使用していません。</p><p>確率はモデルの予測値です。号艇とコースが同じと仮定し、進入変更は反映していません。確率別の項目を開くと全120通りを確認できます。</p><p>期待回収率の候補は、オッズ10.0倍以上・予測確率1%以上・予測確率×オッズ150%以上を満たす最大10通りです。オッズ未取得では判定できません。表示オッズは取得時点のもので、確定まで変動します。</p></details><div class="notice"><strong>予測モデルの説明</strong>　号艇を同じ番号のコースと仮定。等級、全国・当地成績、モーター・ボート成績、フライング歴、平均ST、展示、体重、風・波などを使用。過去データの一部で係数を学習し、別期間で検証しました。展示前後のデータを区別し、締切前の予測を保存できます。提供元の過去データは後から訂正される場合があり、レース直前の保存データによる厳密な検証ではありません。個人コース別の手入力は未検証です。締切前オッズを使った別期間検証でも利益は確認できていません。的中や利益を保証しません。</div></div></details></header>
 
