@@ -91,9 +91,9 @@ struct RaceListView: View {
                         Image(systemName: "sailboat.fill").font(.system(size: 36)).foregroundStyle(.white, .yellow)
                         Text("BOAT RACE\nANALYZER").font(.system(size: 23, weight: .black, design: .rounded)).foregroundStyle(.white)
                         Spacer()
-                        NavigationLink { HistoryView() } label: {
-                            Image(systemName: "calendar").font(.title3.bold()).padding(12).background(.white.opacity(0.94), in: RoundedRectangle(cornerRadius: 14)).foregroundStyle(aqua)
-                        }.accessibilityLabel("予測履歴")
+                        NavigationLink { SettingsView() } label: {
+                            Image(systemName: "gearshape.fill").font(.title3.bold()).padding(12).background(.white.opacity(0.94), in: RoundedRectangle(cornerRadius: 14)).foregroundStyle(aqua)
+                        }.accessibilityLabel("設定")
                     }.padding(20).background(LinearGradient(colors: [.blue, aqua], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 24))
                     VStack(alignment: .leading, spacing: 14) {
                         Label("本日の予測可能レース一覧", systemImage: "circle.fill").font(.headline).foregroundStyle(aqua)
@@ -123,5 +123,18 @@ struct RaceListView: View {
                 }
             }
         }.preferredColorScheme(.light)
+    }
+}
+
+struct SettingsView: View {
+    var body: some View {
+        List {
+            NavigationLink { HistoryView() } label: { Label("予測履歴・カレンダー", systemImage: "calendar") }
+            Section("取扱説明書") {
+                Text("レース一覧から会場を開き、レースを選ぶと予測を表示します。")
+                Text("指標のスライダーを動かすと予測確率を再計算します。調整した設定は保存・読込ができます。")
+                Text("表示した予測を締切前に保存し、確定結果と照合します。")
+            }
+        }.navigationTitle("設定").navigationBarTitleDisplayMode(.inline)
     }
 }
