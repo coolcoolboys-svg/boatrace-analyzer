@@ -49,10 +49,21 @@ struct PredictionView: View {
                 ForEach(adjustments, id: \.0) { item in
                     VStack(alignment: .leading) {
                         HStack { Text(item.1); Spacer(); Text(String(format: "%+.0f", weights[item.0] ?? 0)) }
-                        Slider(value: Binding(get: { weights[item.0] ?? 0 }, set: { weights[item.0] = $0; calculate() }), in: -10...10, step: 1)
+                        Slider(value: Binding(get: { weights[item.0] ?? 0 }, set: { weights[item.0] = $0; UserDefaults.standard.set(weights, forKey: "native.weights.active"); calculate() }), in: -10...10, step: 1)
                     }
                 }
-                Button("初期値に戻す") { for item in adjustments { weights[item.0] = 0 }; calculate() }
+                HStack {
+                    Button("保存") { UserDefaults.standard.set(weights, forKey: "native.weights.preset") }
+                    Button("読込") {
+                        if let stored = UserDefaults.standard.dictionary(forKey: "native.weights.preset") as? [String: Double] {
+                            weights = stored; UserDefaults.standard.set(stored, forKey: "native.weights.active"); calculate()
+                        }
+                    }
+                    Button("初期値に戻す") {
+                        for item in adjustments { weights[item.0] = 0 }
+                        UserDefaults.standard.set(weights, forKey: "native.weights.active"); calculate()
+                    }
+                }
             }
             Section("3連単の予測確率") {
                 ScrollView(.horizontal) {
@@ -68,7 +79,7 @@ struct PredictionView: View {
         }
         .navigationTitle("\(venue) \(race.number)R")
         .navigationBarTitleDisplayMode(.inline)
-        .task { liveRace = race.raw; calculate(); while !Task.isCancelled { await refreshData(); try? await Task.sleep(nanoseconds: 30_000_000_000) } }
+        .task { if let saved = UserDefaults.standard.dictionary(forKey: "native.weights.active") as? [String: Double] { weights = saved }; liveRace = race.raw; calculate(); while !Task.isCancelled { await refreshData(); try? await Task.sleep(nanoseconds: 30_000_000_000) } }
     }
     private func tripleRow(_ item: Triple) -> some View {
         HStack { Text(item.key); Spacer(); Text(odds[item.key].map { String(format: "%.1f倍", $0) } ?? "―"); Spacer(); Text(String(format:"%.3f%%",item.probability*100)).monospacedDigit() }
