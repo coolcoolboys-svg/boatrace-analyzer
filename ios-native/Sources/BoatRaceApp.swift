@@ -88,13 +88,13 @@ struct RaceListView: View {
             ScrollView {
                 VStack(spacing: 16) {
                     HStack(spacing: 12) {
-                        Image(systemName: "sailboat.fill").font(.system(size: 36)).foregroundStyle(.white, .yellow)
-                        Text("BOAT RACE\nANALYZER").font(.system(size: 23, weight: .black, design: .rounded)).foregroundStyle(.white)
+                        Image(systemName: "sailboat.fill").font(.system(size: 28)).foregroundStyle(.white, .yellow)
+                        Text("BOAT RACE\nANALYZER").font(.system(size: 19, weight: .black, design: .rounded)).lineLimit(2).minimumScaleFactor(0.65).fixedSize(horizontal: false, vertical: true).layoutPriority(1).foregroundStyle(.white)
                         Spacer()
                         NavigationLink { SettingsView() } label: {
                             Image(systemName: "gearshape.fill").font(.title3.bold()).padding(12).background(.white.opacity(0.94), in: RoundedRectangle(cornerRadius: 14)).foregroundStyle(aqua)
                         }.accessibilityLabel("設定")
-                    }.padding(20).background(LinearGradient(colors: [.blue, aqua], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 24))
+                    }.padding(16).background(LinearGradient(colors: [.blue, aqua], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 24))
                     VStack(alignment: .leading, spacing: 14) {
                         Label("本日の予測可能レース一覧", systemImage: "circle.fill").font(.headline).foregroundStyle(aqua)
                         HStack { Button("一覧を更新") { Task { await store.refresh() } }.buttonStyle(.borderedProminent).tint(aqua); Spacer() }
