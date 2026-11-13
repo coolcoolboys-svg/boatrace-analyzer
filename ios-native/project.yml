@@ -1,0 +1,16 @@
+name: BoatRaceAnalyzer
+options:
+  deploymentTarget:
+    iOS: "16.0"
+targets:
+  BoatRaceAnalyzer:
+    type: application
+    platform: iOS
+    sources: [Sources]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: jp.boatraceanalyzer.nativepreview
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: "Boat Race Analyzer"
+        SWIFT_VERSION: "5.0"
+        TARGETED_DEVICE_FAMILY: "1"

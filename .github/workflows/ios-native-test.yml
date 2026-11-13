@@ -1,0 +1,24 @@
+name: iOS native simulator test build
+on:
+  pull_request:
+    paths:
+      - 'ios-native/**'
+      - '.github/workflows/ios-native-test.yml'
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate project
+        working-directory: ios-native
+        run: xcodegen generate
+      - name: Build iOS simulator app
+        working-directory: ios-native
+        run: xcodebuild -project BoatRaceAnalyzer.xcodeproj -scheme BoatRaceAnalyzer -configuration Debug -sdk iphonesimulator -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BoatRaceAnalyzer-simulator
+          path: ios-native/build/Build/Products/Debug-iphonesimulator/BoatRaceAnalyzer.app
