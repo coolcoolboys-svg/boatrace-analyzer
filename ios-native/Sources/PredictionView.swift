@@ -37,9 +37,11 @@ struct PredictionView: View {
                 if marginal.count == 6 {
                     ScrollView(.horizontal) {
                         VStack(alignment: .leading) {
-                            HStack { Text("着順").frame(width: 48); ForEach(0..<6, id: \.self) { Text("\($0+1)号艇").frame(width: 62) } }
+                            HStack { Text("着順").frame(width: 48); ForEach(0..<6, id: \.self) { i in
+                                Text("\(i+1)号艇").frame(width: 62, height: 36).background([Color.white, .black, .red, .blue, .yellow, .green][i]).foregroundStyle([0,4].contains(i) ? Color.black : Color.white)
+                            } }
                             ForEach(0..<3, id: \.self) { place in
-                                HStack { Text("\(place+1)着").frame(width: 48); ForEach(0..<6, id: \.self) { i in Text(String(format: "%.1f%%", marginal[i][place]*100)).frame(width: 62) } }
+                                HStack { Text("\(place+1)着").frame(width: 48); ForEach(0..<6, id: \.self) { i in Text(String(format: "%.1f%%", marginal[i][place]*100)).foregroundStyle(marginal[i][place] >= (marginal[i].prefix(3).max() ?? 0) ? Color.red : Color.primary).frame(width: 62) } }
                             }
                         }.font(.caption)
                     }
@@ -136,7 +138,9 @@ struct PredictionView: View {
                   let stadium = stadiums[String(Int(venueID) ?? 0)] as? [String:Any],
                   let races = stadium["races"] as? [String:Any],
                   let current = races[String(Int(race.number) ?? 0)] as? [String:Any] else { return }
-            liveRace=current; calculate()
+            var updated = current
+            updated["date"] = race.raw["date"]
+            liveRace=updated; calculate()
             await refreshOdds(date:date)
         } catch { issue = "更新できませんでした。前回のデータを表示しています。" }
     }
@@ -154,8 +158,8 @@ struct PredictionView: View {
             let code = date + String(format:"%02d", Int(venueID) ?? 0) + String(format:"%02d", Int(race.number) ?? 0)
             guard let row = lines.dropFirst().map({ $0.components(separatedBy:",") }).first(where: { $0.first == code }),
                   let ti = head.firstIndex(of:"取得日時"), ti < row.count,
-                  let captured = ISO8601DateFormatter().date(from:row[ti]),
-                  let close = (liveRace["closed_at"] as? String).flatMap({ ISO8601DateFormatter().date(from:$0) }), captured < close else { return }
+                  let captured = parseRaceDate(row[ti]),
+                  let close = (liveRace["closed_at"] as? String).flatMap({ parseRaceDate($0) }), captured < close else { return }
             var next: [String:Double] = [:]
             for (i,h) in head.enumerated() where h.hasPrefix("3連単_") && i < row.count {
                 if let v = Double(row[i]), v > 0 { next[String(h.dropFirst(4))] = v }
@@ -165,7 +169,7 @@ struct PredictionView: View {
     }
     private func savePrediction(raw: [String:Any], date: String) {
         guard let close = raw["closed_at"] as? String,
-              let deadline = ISO8601DateFormatter().date(from:close), Date() < deadline,
+              let deadline = parseRaceDate(close), Date() < deadline,
               let best = triples.first else { return }
         let record = PredictionRecord(id: date + "-" + venueID + "-" + race.number, date: date, venue: venue, race: race.number, prediction: best.key, actual: nil)
         HistoryStore.upsert(record)
