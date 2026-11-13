@@ -52,12 +52,17 @@ workflows:
           xcrun simctl launch "$DEVICE" jp.boatraceanalyzer.nativepreview
           sleep 20
           xcrun simctl io "$DEVICE" screenshot "$CM_BUILD_DIR/simulator-home.png"
+          xcrun simctl terminate "$DEVICE" jp.boatraceanalyzer.nativepreview
+          xcrun simctl launch "$DEVICE" jp.boatraceanalyzer.nativepreview --ui-test-predict
+          sleep 35
+          xcrun simctl io "$DEVICE" screenshot "$CM_BUILD_DIR/simulator-prediction.png"
       - name: Configure signing
         script: xcode-project use-profiles
       - name: Build signed package
         script: xcode-project build-ipa --project "$CM_BUILD_DIR/ios-native/BoatRaceAnalyzer.xcodeproj" --scheme BoatRaceAnalyzer
     artifacts:
       - simulator-home.png
+      - simulator-prediction.png
       - /tmp/simulator-build.log
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
