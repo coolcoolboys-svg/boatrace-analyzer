@@ -16,6 +16,23 @@ workflows:
           set -euo pipefail
           git fetch origin feature/ios-native-test
           git checkout --detach FETCH_HEAD
+      - name: Verify race data source
+        script: |
+          python3 - <<'PY'
+          import json, urllib.request
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+          now = datetime.now(ZoneInfo("Asia/Tokyo"))
+          day = now.strftime("%Y%m%d")
+          url = f"https://boatraceopenapi.github.io/api/v1/{day[:4]}/{day}.json"
+          with urllib.request.urlopen(url, timeout=30) as response:
+              root = json.load(response)
+          stadiums = root["programs"]["stadiums"]
+          races = [r for st in stadiums.values() for r in st.get("races",{}).values()]
+          examples = [r.get("closed_at") for r in races if r.get("closed_at")]
+          valid = [r for r in races if all(str(i) in r.get("racers",{}) for i in range(1,7))]
+          print(f"JST date: {day}; venues: {len(stadiums)}; races: {len(races)}; complete entries: {len(valid)}; sample deadlines: {examples[:3]}")
+          PY
       - name: Generate project
         script: |
           set -euo pipefail
