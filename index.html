@@ -39,7 +39,30 @@ details>summary{cursor:pointer}
 [hidden]{display:none!important}
 @media(max-width:720px){.wrap{padding:0 10px 28px}header{margin:0 -10px 12px;padding:16px 14px}.panel{padding:16px 14px;margin:10px 0;border-radius:4px}.racecard{padding:12px}}
 @media(max-width:380px){.venue-summary-content{gap:4px}.venue-countdown{font-size:.72em}.racecard{padding:10px}.panel{padding:14px 12px}}
-.brand{display:flex;align-items:center;gap:11px;min-width:0}.brand-boat{width:69px;height:44px;flex:none}header .brand h1{font-size:clamp(18px,5vw,25px);line-height:1.05;letter-spacing:.045em;font-weight:900;margin:0}header .brand h1 span{letter-spacing:.12em}@media(max-width:380px){.brand{gap:7px}.brand-boat{width:55px;height:38px}header .brand h1{font-size:18px}}.weight-slider{display:grid;grid-template-columns:1fr auto;gap:4px 8px;align-items:center}.weight-slider output{font-size:15px;color:#173d66;font-weight:700}.weight-slider input[type=range]{grid-column:1/-1;width:100%;padding:0;margin:5px 0 12px;accent-color:#163d66;min-height:28px}</style></head><body><div class="wrap">
+.brand{display:flex;align-items:center;gap:11px;min-width:0}.brand-boat{width:69px;height:44px;flex:none}header .brand h1{font-size:clamp(18px,5vw,25px);line-height:1.05;letter-spacing:.045em;font-weight:900;margin:0}header .brand h1 span{letter-spacing:.12em}@media(max-width:380px){.brand{gap:7px}.brand-boat{width:55px;height:38px}header .brand h1{font-size:18px}}.weight-slider{display:grid;grid-template-columns:1fr auto;gap:4px 8px;align-items:center}.weight-slider output{font-size:15px;color:#173d66;font-weight:700}.weight-slider input[type=range]{grid-column:1/-1;width:100%;padding:0;margin:5px 0 12px;accent-color:#163d66;min-height:28px}
+/* Bright waterfront theme */
+:root{color:#20344f;background:#f2f8fc}
+body{background:#f2f8fc}
+header{background:linear-gradient(115deg,#175e9d,#168ba6);border-bottom:4px solid #ffd26b;padding-top:20px;padding-bottom:20px}
+.panel{border:1px solid #dceef4;border-radius:18px;box-shadow:0 4px 0 #dfeef4}
+h2{color:#20405e;border-left:5px solid #ffc354;border-radius:3px}
+.settings>summary{border:0;border-radius:13px;background:#fff;box-shadow:0 3px 0 #12677e}
+button{background:#177eae;border-radius:12px;box-shadow:0 3px 0 #12668e}
+button.secondary{background:#e9f5fa;color:#225476;box-shadow:none}
+.racecards{gap:9px}
+.racecard{background:#f4fbfd;border:1px solid #d5ebf2;border-left:4px solid #57bccc;border-radius:13px}
+.racecard[open]{background:#ecf9fa;border-color:#9ddce2;border-left-color:#f4bb4c}
+.venue-countdown{color:#b34d39}
+.boat{border:1px solid #deebf0;border-radius:14px}
+.scroll{border-radius:10px}
+th{background:#eaf5f9;color:#30546d}
+td,th{border-bottom-color:#e3eef2}
+input,select,textarea{border-color:#cce1eb;border-radius:9px}
+.weight-slider input[type=range]{accent-color:#148ba4}
+.weight-slider output{color:#14728b}
+#probabilitytabs button{border-radius:10px 10px 0 0}
+@media(max-width:720px){.panel{border-radius:16px}.racecard{border-radius:12px}}
+</style></head><body><div class="wrap">
 <header><div class="brand"><svg class="brand-boat" viewBox="0 0 88 54" aria-hidden="true"><path d="M6 36c7 0 14-2 21-5l35-13 15 3-9 14c-7 7-14 10-25 10H20c-7 0-11-3-14-9Z" fill="#fff"/><path d="M16 38h50l-5 4H25c-4 0-7-1-9-4Z" fill="#e6ad30"/><path d="M41 29l8-15 8 1-2 10-14 4Z" fill="#e6ad30"/><circle cx="55" cy="11" r="5" fill="#fff"/><path d="M3 48h38M0 52h27M69 42h15" stroke="#78c5df" stroke-width="2.5" stroke-linecap="round"/></svg><h1>BOAT RACE<br><span>ANALYZER</span></h1></div><details class="settings"><summary aria-label="設定">⚙️</summary><button class="secondary" id="reset">初期値に戻す</button><div id="settingscontent"><details class="panel"><summary>取扱説明書</summary><p>指標の調整は0が現在の予測を基準とし、1刻みで補正の強さを0.1倍ずつ変更します。−10は補正を使わず、＋10は補正を2倍にします。スライダーを動かすと予測確率がすぐに更新されます。オッズは投票状況により決まり、アプリの予測調整では変わりません。保存・読込はこの端末内のカスタム設定を使用します。</p><p>予測結果は確率ごとの項目をタップして確認できます。オッズや期待回収率は取得できた場合に表示します。予測や回収率は保証されません。</p><p>レース一覧の締切は提供元の予定時刻です。中止・順延・結果確定のレースは対象外です。最終的な締切は公式サイトで確認してください。</p><p>出走表の取得にはネット接続が必要です。提供元は <a href="https://github.com/boatraceopenapi/api" target="_blank" rel="noopener noreferrer">Boatrace OpenAPI</a>（非公式）です。個人コース別成績は未取得の場合に手入力できます。</p><p>風速・波高は取得できた場合に艇ごとの基準補正として使用します。選手別の波高適性は使用していません。</p><p>確率はモデルの予測値です。号艇とコースが同じと仮定し、進入変更は反映していません。確率別の項目を開くと全120通りを確認できます。</p><p>期待回収率の候補は、オッズ10.0倍以上・予測確率1%以上・予測確率×オッズ150%以上を満たす最大10通りです。オッズ未取得では判定できません。表示オッズは取得時点のもので、確定まで変動します。</p></details><div class="notice"><strong>予測モデルの説明</strong>　号艇を同じ番号のコースと仮定。等級、全国・当地成績、モーター・ボート成績、フライング歴、平均ST、展示、体重、風・波などを使用。過去データの一部で係数を学習し、別期間で検証しました。展示前後のデータを区別し、締切前の予測を保存できます。提供元の過去データは後から訂正される場合があり、レース直前の保存データによる厳密な検証ではありません。個人コース別の手入力は未検証です。締切前オッズを使った別期間検証でも利益は確認できていません。的中や利益を保証しません。</div></div></details></header>
 
 <section class="panel" id="raceinfo" hidden><h2>レース情報</h2><div class="controls"><label>レース名<input id="race" placeholder="例：福岡 12R"></label><label>開催日<input id="date" type="date"></label><button id="calc">確率を計算</button><button class="secondary" id="save">入力データを保存</button><button class="secondary" id="load">保存データを読込</button></div><div class="muted" style="margin-top:8px">入力値はこの端末のブラウザ内にのみ保存されます。保存操作自体は外部通信しません。レースの自動取得時のみ通信します。</div></section>
