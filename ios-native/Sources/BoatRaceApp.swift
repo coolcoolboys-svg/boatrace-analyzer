@@ -3,7 +3,7 @@ import SwiftUI
 @main
 struct BoatRaceApp: App {
     var body: some Scene {
-        WindowGroup { RaceListView() }
+        WindowGroup { AnalyzerAppRoot() }
     }
 }
 
