@@ -21,6 +21,7 @@ workflows:
           set -euo pipefail
           command -v xcodegen >/dev/null || brew install xcodegen
           cd ios-native
+          swift make_icon.swift
           xcodegen generate
       - name: Configure signing
         script: xcode-project use-profiles
