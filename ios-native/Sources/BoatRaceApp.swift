@@ -11,6 +11,7 @@ struct Race: Identifiable {
     let id: String
     let number: String
     let closing: String
+    let raw: [String: Any]
 }
 struct Venue: Identifiable {
     let id: String
@@ -55,7 +56,7 @@ final class RaceStore: ObservableObject {
                     let clock = DateFormatter()
                     clock.timeZone = TimeZone(identifier: "Asia/Tokyo")
                     clock.dateFormat = "HH:mm"
-                    return Race(id: "\(n)-\(rk)", number: rk, closing: clock.string(from: date))
+                    return Race(id: "\(n)-\(rk)", number: rk, closing: clock.string(from: date), raw: race)
                 }.sorted { (Int($0.number) ?? 0) < (Int($1.number) ?? 0) }
                 return items.isEmpty ? nil : Venue(id: key, name: names[n-1], races: items)
             }.sorted { (Int($0.id) ?? 0) < (Int($1.id) ?? 0) }
@@ -75,7 +76,7 @@ struct RaceListView: View {
                 ForEach(store.venues) { venue in
                     DisclosureGroup("\(venue.name)  \(venue.races.count)レース") {
                         ForEach(venue.races) { race in
-                            HStack { Text("\(race.number)R"); Spacer(); Text("締切 \(race.closing)").foregroundStyle(.secondary) }
+                            NavigationLink { PredictionView(race: race, venue: venue.name, venueID: venue.id) } label: { HStack { Text("\(race.number)R"); Spacer(); Text("締切 \(race.closing)").foregroundStyle(.secondary) } }
                         }
                     }
                 }
