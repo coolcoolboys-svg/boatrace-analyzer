@@ -25,6 +25,8 @@ struct PredictionView: View {
     @State private var marginal: [[Double]] = []
     @State private var selectedAxis = 0
     @State private var issue: String?
+    @State private var liveRace: [String: Any] = [:]
+    @State private var odds: [String: Double] = [:]
     private var axes: [String] { ["全艇","1号艇","2号艇","3号艇","4号艇","5号艇","6号艇"] }
     private var filtered: [Triple] { selectedAxis == 0 ? triples : triples.filter { $0.key.hasPrefix("\(selectedAxis)-") } }
 
@@ -66,17 +68,18 @@ struct PredictionView: View {
         }
         .navigationTitle("\(venue) \(race.number)R")
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear { calculate() }
+        .task { liveRace = race.raw; calculate(); while !Task.isCancelled { await refreshData(); try? await Task.sleep(nanoseconds: 30_000_000_000) } }
     }
     private func tripleRow(_ item: Triple) -> some View {
-        HStack { Text(item.key); Spacer(); Text("―"); Spacer(); Text(String(format:"%.3f%%",item.probability*100)).monospacedDigit() }
+        HStack { Text(item.key); Spacer(); Text(odds[item.key].map { String(format: "%.1f倍", $0) } ?? "―"); Spacer(); Text(String(format:"%.3f%%",item.probability*100)).monospacedDigit() }
     }
     private func calculate() {
-        guard let racers = race.raw["racers"] as? [String: [String: Any]],
+        let raw = liveRace.isEmpty ? race.raw : liveRace
+        guard let racers = raw["racers"] as? [String: [String: Any]],
               let path = Bundle.main.path(forResource: "PredictionEngine", ofType: "js"),
               let script = try? String(contentsOfFile: path, encoding: .utf8),
               let context = JSContext() else { issue = "予測データを読み込めません"; return }
-        let preview = race.raw["preview"] as? [String: Any] ?? [:]
+        let preview = raw["preview"] as? [String: Any] ?? [:]
         let previews = preview["racers"] as? [String: [String: Any]] ?? [:]
         let course = [55.0,13.5,12.8,10.6,6.1,1.9]
         let gradeMap = [1:"A1",2:"A2",3:"B1",4:"B2"]
@@ -92,7 +95,7 @@ struct PredictionView: View {
             for (key,source) in ["exst":"start_timing","tilt":"tilt_adjustment","adjust":"weight_adjustment"] { if let n = number(p[source]) { v[key] = n } }
             values.append(v)
         }
-        let day = race.raw["date"] as? String ?? ""
+        let day = raw["date"] as? String ?? ""
         var factors = Dictionary(uniqueKeysWithValues: adjustments.map { ($0.0, 100 + (weights[$0.0] ?? 0) * 10) })
         factors["wind"] = 100; factors["wave"] = 100
         let payload: [String: Any] = ["values": values, "weather": ["wind":number(preview["wind_speed"]) as Any? ?? NSNull(), "wave":number(preview["wave_height"]) as Any? ?? NSNull()], "date":day, "venue":Int(venueID) ?? 0, "weights":factors]
@@ -105,5 +108,56 @@ struct PredictionView: View {
               let margins = json["marginals"] as? [[Double]] else { issue = "予測計算に失敗しました"; return }
         triples = rows.compactMap { row in guard let k = row["key"] as? String, let p = row["p"] as? Double else { return nil }; return Triple(key:k, probability:p) }
         marginal = margins; issue = nil
+        savePrediction(raw: raw, date: day)
     }
+    @MainActor
+    private func refreshData() async {
+        let formatter = DateFormatter(); formatter.timeZone = TimeZone(identifier: "Asia/Tokyo"); formatter.dateFormat = "yyyyMMdd"
+        let date = formatter.string(from: Date())
+        guard let url = URL(string:"https://boatraceopenapi.github.io/api/v1/\(date.prefix(4))/\(date).json") else { return }
+        do {
+            var request = URLRequest(url:url); request.cachePolicy = .reloadIgnoringLocalCacheData
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard (response as? HTTPURLResponse)?.statusCode == 200,
+                  let root = try JSONSerialization.jsonObject(with:data) as? [String:Any],
+                  let programs = root["programs"] as? [String:Any],
+                  let stadiums = programs["stadiums"] as? [String:Any],
+                  let stadium = stadiums[String(Int(venueID) ?? 0)] as? [String:Any],
+                  let races = stadium["races"] as? [String:Any],
+                  let current = races[String(Int(race.number) ?? 0)] as? [String:Any] else { return }
+            liveRace=current; calculate()
+            await refreshOdds(date:date)
+        } catch { issue = "更新できませんでした。前回のデータを表示しています。" }
+    }
+    @MainActor
+    private func refreshOdds(date: String) async {
+        let month = String(date.dropFirst(4).prefix(2)), day = String(date.suffix(2))
+        guard let url = URL(string:"https://boatracecsv.github.io/data/previews/od3/\(date.prefix(4))/\(month)/\(day).csv") else { return }
+        do {
+            var req = URLRequest(url:url); req.cachePolicy = .reloadIgnoringLocalCacheData
+            let (data, response) = try await URLSession.shared.data(for:req)
+            guard (response as? HTTPURLResponse)?.statusCode == 200, let text = String(data:data, encoding:.utf8) else { return }
+            let lines = text.components(separatedBy:.newlines)
+            guard let first = lines.first else { return }
+            let head = first.replacingOccurrences(of:"\u{FEFF}",with:"").components(separatedBy:",")
+            let code = date + String(format:"%02d", Int(venueID) ?? 0) + String(format:"%02d", Int(race.number) ?? 0)
+            guard let row = lines.dropFirst().map({ $0.components(separatedBy:",") }).first(where: { $0.first == code }),
+                  let ti = head.firstIndex(of:"取得日時"), ti < row.count,
+                  let captured = ISO8601DateFormatter().date(from:row[ti]),
+                  let close = (liveRace["closed_at"] as? String).flatMap({ ISO8601DateFormatter().date(from:$0) }), captured < close else { return }
+            var next: [String:Double] = [:]
+            for (i,h) in head.enumerated() where h.hasPrefix("3連単_") && i < row.count {
+                if let v = Double(row[i]), v > 0 { next[String(h.dropFirst(4))] = v }
+            }
+            if !next.isEmpty { odds=next }
+        } catch { }
+    }
+    private func savePrediction(raw: [String:Any], date: String) {
+        guard let close = raw["closed_at"] as? String,
+              let deadline = ISO8601DateFormatter().date(from:close), Date() < deadline,
+              let best = triples.first else { return }
+        let record = PredictionRecord(id: date + "-" + venueID + "-" + race.number, date: date, venue: venue, race: race.number, prediction: best.key, actual: nil)
+        HistoryStore.upsert(record)
+    }
+
 }
