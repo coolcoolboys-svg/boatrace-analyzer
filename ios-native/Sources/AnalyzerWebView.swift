@@ -23,6 +23,21 @@ struct AnalyzerWebView: UIViewRepresentable {
     func updateUIView(_ view: WKWebView, context: Context) {}
     func makeCoordinator() -> Coordinator { Coordinator() }
     final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            guard ProcessInfo.processInfo.arguments.contains("--ui-test-predict") else { return }
+            let script = """
+            (function() {
+              let attempts = 0;
+              const timer = setInterval(() => {
+                const card = document.querySelector('#racecards details.racecard:not([data-inactive])');
+                const button = card && card.querySelector('button[data-venue]');
+                if (button) { card.open = true; button.click(); clearInterval(timer); }
+                if (++attempts > 60) clearInterval(timer);
+              }, 500);
+            })();
+            """
+            webView.evaluateJavaScript(script, completionHandler: nil)
+        }
         func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration,
                      for action: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
             if let url = action.request.url, action.targetFrame == nil {
