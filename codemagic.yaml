@@ -14,6 +14,7 @@ workflows:
       - name: Generate project
         script: |
           set -euo pipefail
+          python3 scripts/verify-support-contact.py
           command -v xcodegen >/dev/null || brew install xcodegen
           cd ios-native
           # TestFlight uses Google's test banner to avoid live ad traffic during testing.
@@ -23,6 +24,7 @@ workflows:
       - name: Verify simulator build
         script: |
           set -euo pipefail
+          python3 scripts/verify-support-contact.py
           cd ios-native
           xcodebuild -project BoatRaceAnalyzer.xcodeproj -scheme BoatRaceAnalyzer -configuration Debug -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO build
       - name: Configure signing

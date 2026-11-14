@@ -1,0 +1,10 @@
+{
+  "supportEmail": "kojinapp.support@gmail.com",
+  "supportFormUrl": "https://docs.google.com/forms/d/e/1FAIpQLSdelw1zoYyDkDhv1JgkTIPrD26dQwMW9S0c3WKh73iUE52Hfg/viewform",
+  "supportUrl": "https://coolcoolboys-svg.github.io/noreru-bus-support/",
+  "appReviewContactEmail": "kojinapp.support@gmail.com",
+  "betaFeedbackEmail": "kojinapp.support@gmail.com",
+  "contactSourcePaths": [
+    "ios-native/Sources/Analyzer.html"
+  ]
+}
