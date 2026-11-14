@@ -32,7 +32,9 @@ workflows:
           set -euo pipefail
           APP=$(find "$HOME/Library/Developer/Xcode/DerivedData" -path '*/Debug-iphonesimulator/BoatRaceAnalyzer.app' -type d | head -1)
           test -n "$APP"
-          /usr/libexec/PlistBuddy -c 'Print :GADApplicationIdentifier' "$APP/Info.plist" | grep -E '^ca-app-pub-[0-9]+~[0-9]+
+          /usr/libexec/PlistBuddy -c 'Print :GADApplicationIdentifier' "$APP/Info.plist" | grep -E '^ca-app-pub-[0-9]+~[0-9]+$'
+          /usr/libexec/PlistBuddy -c 'Print :AdMobBannerID' "$APP/Info.plist" | grep -E '^ca-app-pub-[0-9]+/[0-9]+$'
+      - name: Configure signing
         script: xcode-project use-profiles
       - name: Build signed package
         script: xcode-project build-ipa --project "$CM_BUILD_DIR/ios-native/BoatRaceAnalyzer.xcodeproj" --scheme BoatRaceAnalyzer
@@ -56,30 +58,4 @@ workflows:
       app_store_connect:
         auth: integration
         submit_to_testflight: false
-        submit_to_app_store: false
-
-          /usr/libexec/PlistBuddy -c 'Print :AdMobBannerID' "$APP/Info.plist" | grep -E '^ca-app-pub-[0-9]+/[0-9]+
-        script: xcode-project use-profiles
-      - name: Build signed package
-        script: xcode-project build-ipa --project "$CM_BUILD_DIR/ios-native/BoatRaceAnalyzer.xcodeproj" --scheme BoatRaceAnalyzer
-    artifacts:
-      - build/ios/ipa/*.ipa
-      - /tmp/xcodebuild_logs/*.log
-    publishing:
-      app_store_connect:
-        auth: integration
-        submit_to_testflight: true
-        submit_to_app_store: false
-
-      - name: Configure signing
-        script: xcode-project use-profiles
-      - name: Build signed package
-        script: xcode-project build-ipa --project "$CM_BUILD_DIR/ios-native/BoatRaceAnalyzer.xcodeproj" --scheme BoatRaceAnalyzer
-    artifacts:
-      - build/ios/ipa/*.ipa
-      - /tmp/xcodebuild_logs/*.log
-    publishing:
-      app_store_connect:
-        auth: integration
-        submit_to_testflight: true
         submit_to_app_store: false
