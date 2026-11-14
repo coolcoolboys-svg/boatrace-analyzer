@@ -27,6 +27,50 @@ workflows:
           python3 scripts/verify-support-contact.py
           cd ios-native
           xcodebuild -project BoatRaceAnalyzer.xcodeproj -scheme BoatRaceAnalyzer -configuration Debug -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO build
+      - name: Verify simulator ad configuration
+        script: |
+          set -euo pipefail
+          APP=$(find "$HOME/Library/Developer/Xcode/DerivedData" -path '*/Debug-iphonesimulator/BoatRaceAnalyzer.app' -type d | head -1)
+          test -n "$APP"
+          /usr/libexec/PlistBuddy -c 'Print :GADApplicationIdentifier' "$APP/Info.plist" | grep -E '^ca-app-pub-[0-9]+~[0-9]+
+        script: xcode-project use-profiles
+      - name: Build signed package
+        script: xcode-project build-ipa --project "$CM_BUILD_DIR/ios-native/BoatRaceAnalyzer.xcodeproj" --scheme BoatRaceAnalyzer
+      - name: Verify packaged ad configuration
+        script: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import glob, zipfile, plistlib, re
+          ipa = glob.glob("build/ios/ipa/*.ipa")[0]
+          with zipfile.ZipFile(ipa) as archive:
+              name = next(n for n in archive.namelist() if n.endswith(".app/Info.plist") and n.count("/") == 2)
+              info = plistlib.loads(archive.read(name))
+          assert re.fullmatch(r"ca-app-pub-\d+~\d+", info.get("GADApplicationIdentifier", "")), "Missing AdMob app ID"
+          assert re.fullmatch(r"ca-app-pub-\d+/\d+", info.get("AdMobBannerID", "")), "Missing AdMob banner ID"
+          print("Packaged AdMob identifiers verified; build", info["CFBundleVersion"])
+          PY
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: false
+        submit_to_app_store: false
+
+          /usr/libexec/PlistBuddy -c 'Print :AdMobBannerID' "$APP/Info.plist" | grep -E '^ca-app-pub-[0-9]+/[0-9]+
+        script: xcode-project use-profiles
+      - name: Build signed package
+        script: xcode-project build-ipa --project "$CM_BUILD_DIR/ios-native/BoatRaceAnalyzer.xcodeproj" --scheme BoatRaceAnalyzer
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+        submit_to_app_store: false
+
       - name: Configure signing
         script: xcode-project use-profiles
       - name: Build signed package
