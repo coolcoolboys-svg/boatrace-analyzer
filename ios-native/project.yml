@@ -23,6 +23,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: jp.boatraceanalyzer.nativepreview
         GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
         INFOPLIST_KEY_GADApplicationIdentifier: "$(ADMOB_APP_ID)"
         INFOPLIST_KEY_AdMobBannerID: "$(ADMOB_BANNER_ID)"
         ADMOB_APP_ID: "ca-app-pub-9638556154023117~1259902816"
