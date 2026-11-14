@@ -23,6 +23,15 @@ struct AnalyzerWebView: UIViewRepresentable {
     func updateUIView(_ view: WKWebView, context: Context) {}
     func makeCoordinator() -> Coordinator { Coordinator() }
     final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
+        func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String,
+                     initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Void) {
+            guard let controller = webView.window?.rootViewController else { completionHandler(); return }
+            var presenter = controller
+            while let presented = presenter.presentedViewController { presenter = presented }
+            let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default) { _ in completionHandler() })
+            presenter.present(alert, animated: true)
+        }
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             guard ProcessInfo.processInfo.arguments.contains("--ui-test-predict") else { return }
             let script = """
@@ -50,7 +59,7 @@ struct AnalyzerWebView: UIViewRepresentable {
 
 struct AnalyzerAppRoot: View {
     var body: some View {
-        AnalyzerWebView().ignoresSafeArea(.container, edges: .bottom)
+        AnalyzerWebView()
             .preferredColorScheme(.light)
     }
 }
