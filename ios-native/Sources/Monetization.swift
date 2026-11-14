@@ -81,7 +81,7 @@ final class AdsConsent: ObservableObject {
                 do { try await ConsentForm.loadAndPresentIfRequired(from: nil) } catch { }
                 self?.requiresPrivacyOptions = ConsentInformation.shared.privacyOptionsRequirementStatus == .required
                 if ConsentInformation.shared.canRequestAds {
-                    MobileAds.shared.start()
+                    await MobileAds.shared.start()
                     self?.canShowAds = true
                 }
             }
