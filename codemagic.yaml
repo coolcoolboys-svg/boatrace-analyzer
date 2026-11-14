@@ -16,7 +16,7 @@ workflows:
           set -euo pipefail
           command -v xcodegen >/dev/null || brew install xcodegen
           cd ios-native
-          xcodegen generate
+          # TestFlight uses Google's test banner to avoid live ad traffic during testing.\n          sed -i '' 's|ca-app-pub-9638556154023117/4317310992|ca-app-pub-3940256099942544/2435281174|g' project.yml\n          xcodegen generate
       - name: Configure signing
         script: xcode-project use-profiles
       - name: Build signed package
