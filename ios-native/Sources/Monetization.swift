@@ -98,37 +98,41 @@ final class AdsConsent: ObservableObject {
 
 struct AdBannerContainer: View {
     @StateObject private var consent = AdsConsent()
-    @State private var bannerHeight: CGFloat = 50
     var body: some View {
         VStack(spacing: 0) {
             if consent.requiresPrivacyOptions {
                 Button("広告のプライバシー設定") { consent.showPrivacyOptions() }.font(.caption)
             }
             if consent.canShowAds {
-                GeometryReader { proxy in
-                    let size = largeAnchoredAdaptiveBanner(width: proxy.size.width)
-                    AdBanner(size: size).frame(width: size.size.width, height: size.size.height)
-                        .onAppear { bannerHeight = size.size.height }
-                        .onChange(of: proxy.size.width) { width in
-                            bannerHeight = largeAnchoredAdaptiveBanner(width: width).size.height
-                        }
-                }.frame(height: bannerHeight)
+                AdBanner()
+                    .frame(width: 320, height: 50)
+                    .frame(maxWidth: .infinity, alignment: .center)
             }
         }.onAppear { consent.gather() }
     }
 }
+
+// A neutral host keeps the ad's intrinsic size from stretching the SwiftUI layout.
 private struct AdBanner: UIViewRepresentable {
-    let size: AdSize
-    func makeUIView(context: Context) -> BannerView {
-        let banner = BannerView(adSize: size)
+    func makeUIView(context: Context) -> UIView {
+        let host = UIView()
+        let banner = BannerView(adSize: AdSizeBanner)
+        banner.translatesAutoresizingMaskIntoConstraints = false
+        host.addSubview(banner)
+        NSLayoutConstraint.activate([
+            banner.centerXAnchor.constraint(equalTo: host.centerXAnchor),
+            banner.centerYAnchor.constraint(equalTo: host.centerYAnchor),
+            banner.widthAnchor.constraint(equalToConstant: 320),
+            banner.heightAnchor.constraint(equalToConstant: 50)
+        ])
         banner.adUnitID = Bundle.main.object(forInfoDictionaryKey: "AdMobBannerID") as? String
         banner.load(Request())
-        return banner
+        return host
     }
-    func updateUIView(_ banner: BannerView, context: Context) {
-        if banner.adSize.size.width != size.size.width {
-            banner.adSize = size
-            banner.load(Request())
-        }
+
+    func updateUIView(_ host: UIView, context: Context) {}
+
+    func sizeThatFits(_ proposal: ProposedViewSize, uiView: UIView, context: Context) -> CGSize? {
+        CGSize(width: 320, height: 50)
     }
 }
