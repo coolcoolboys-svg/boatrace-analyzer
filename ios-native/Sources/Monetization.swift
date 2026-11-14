@@ -7,7 +7,7 @@ import UserMessagingPlatform
 @MainActor
 final class SupportStore: ObservableObject {
     static let shared = SupportStore()
-    private let ids = ["jp.boatraceanalyzer.support.small", "jp.boatraceanalyzer.support.medium", "jp.boatraceanalyzer.support.large"]
+    private let ids = ["jp.boatraceanalyzer.support.small", "jp.boatraceanalyzer.support.medium", "jp.boatraceanalyzer.support.large", "jp.boatraceanalyzer.support.extra"]
     @Published var products: [Product] = []
     @Published var message = ""
     @Published var working = false
