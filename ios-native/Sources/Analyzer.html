@@ -335,7 +335,7 @@ document.getElementById('verify').onclick=()=>{
  }catch(e){msg.textContent='照合または履歴保存に失敗しました。';}
 };
 document.getElementById('historycsv').onclick=()=>{const h=JSON.parse(localStorage.getItem('boat-verify-v80')||'[]');download('verification_history.csv',[['開催日','レース','実際の3連単','予測順位','推定確率','確率上位10的中','予測保存日時'],...h.map(x=>[x.date,x.race,x.actual,x.rank,(x.p*100).toFixed(5),x.top10?'はい':'いいえ',x.created])]);};
-document.getElementById('verificationpanel').hidden=false;document.getElementById('settingscontent').appendChild(document.getElementById('verificationpanel'));document.getElementById('connectionpanel').hidden=true;document.getElementById('raceinfo').hidden=true;
+document.getElementById('verificationpanel').hidden=true;document.getElementById('settingscontent').appendChild(document.getElementById('verificationpanel'));document.getElementById('connectionpanel').hidden=true;document.getElementById('raceinfo').hidden=true;
 
 const settingsToggle=document.querySelector('.settings > summary');
 const settingsPage=document.createElement('section');
@@ -344,8 +344,12 @@ settingsPage.hidden=true;
 settingsPage.innerHTML='<div class="settings-page-inner"><div class="settings-page-heading"><button type="button" id="settings-back" class="secondary">‹ 戻る</button><h2>設定</h2></div><div id="settings-page-body"></div></div>';
 document.body.appendChild(settingsPage);
 const settingsBody=settingsPage.querySelector('#settings-page-body');
-settingsBody.appendChild(document.getElementById('reset'));
-settingsBody.appendChild(document.getElementById('settingscontent'));
+document.getElementById('reset').hidden=true;
+const legacySettings=document.getElementById('settingscontent');
+legacySettings.hidden=true;
+const appInfo=document.createElement('div');
+appInfo.innerHTML=`<section class="panel"><h2>アプリについて</h2><p>BOAT RACE ANALYZER　バージョン 1.0</p><p>出走表やレース情報をもとに、各艇の着順と3連単の確率を予測します。予測は参考情報であり、的中や利益を保証するものではありません。レース情報は公式発表をご確認ください。</p></section><details class="panel"><summary>プライバシーポリシー</summary><p>本アプリはレース情報の取得のため外部サービスに通信します。通信時には接続先にIPアドレス等の通信情報が送られる場合があります。</p><p>予測履歴や設定は端末内に保存されます。端末の設定やアプリの削除等により消去される場合があります。</p><p>本アプリは無料で利用でき、今後広告バナーを掲載する予定です。広告を導入する際は、利用する広告サービスや取得する情報、設定方法をこのポリシーに追記します。</p><p>寄付を受け付ける場合は、決済方法や取扱情報を案内します。現時点では寄付の受付を行っていません。</p><p>お問い合わせ先は準備中です。内容はサービスの変更に応じて更新します。</p></details><section class="panel"><h2>お問い合わせ</h2><p>準備中</p></section><section class="panel"><h2>寄付</h2><button class="secondary" type="button" disabled>準備中</button></section>`;
+settingsBody.appendChild(appInfo);
 const calendarSection=document.createElement('section');
 calendarSection.className='panel';
 calendarSection.innerHTML='<h2>予測の振り返り</h2><div class="calendar-nav"><button type="button" class="secondary" id="calendar-prev" aria-label="前月">‹</button><strong id="calendar-month"></strong><button type="button" class="secondary" id="calendar-next" aria-label="翌月">›</button></div><div class="calendar-grid" id="calendar-grid"></div><div id="calendar-detail" class="calendar-detail"></div>';
