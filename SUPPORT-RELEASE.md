@@ -1,7 +1,7 @@
 # 問い合わせ先・製品版公開時の設定
 
 - 共通窓口：kojinapp.support@gmail.com
-- 共通フォーム：https://docs.google.com/forms/d/e/1FAIpQLSdelw1zoYyDkDhv1JgkTIPrD26dQwMW9S0c3WKh73iUE52Hfg/viewform
+- お問い合わせはメールのみ（フォームは使用しない）
 - サポートURL：https://coolcoolboys-svg.github.io/noreru-bus-support/
 
 製品版・TestFlightはこのブランチの最新コミットから作成すること。既存のIPAに変更は反映されないため再ビルドが必要。
