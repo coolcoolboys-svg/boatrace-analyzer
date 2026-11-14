@@ -5,6 +5,7 @@ struct AnalyzerWebView: UIViewRepresentable {
     func makeUIView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
+        config.userContentController.add(context.coordinator, name: "nativeAction")
         let view = WKWebView(frame: .zero, configuration: config)
         view.navigationDelegate = context.coordinator
         view.uiDelegate = context.coordinator
@@ -22,7 +23,14 @@ struct AnalyzerWebView: UIViewRepresentable {
     }
     func updateUIView(_ view: WKWebView, context: Context) {}
     func makeCoordinator() -> Coordinator { Coordinator() }
-    final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
+    final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler {
+        func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+            guard let action = message.body as? String, action == "support",
+                  let root = message.webView?.window?.rootViewController else { return }
+            var presenter = root
+            while let presented = presenter.presentedViewController { presenter = presented }
+            presenter.present(UIHostingController(rootView: SupportView()), animated: true)
+        }
         func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String,
                      initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Void) {
             guard let controller = webView.window?.rootViewController else { completionHandler(); return }
@@ -59,7 +67,10 @@ struct AnalyzerWebView: UIViewRepresentable {
 
 struct AnalyzerAppRoot: View {
     var body: some View {
-        AnalyzerWebView()
-            .preferredColorScheme(.light)
+        VStack(spacing: 0) {
+            AnalyzerWebView()
+            AdBannerContainer()
+        }
+        .preferredColorScheme(.light)
     }
 }
