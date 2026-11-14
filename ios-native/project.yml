@@ -18,7 +18,7 @@ targets:
       - package: GoogleMobileAds
         product: GoogleMobileAds
       - package: UserMessagingPlatform
-        product: UserMessagingPlatform
+        product: GoogleUserMessagingPlatform
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: jp.boatraceanalyzer.nativepreview
